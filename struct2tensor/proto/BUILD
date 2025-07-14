@@ -1,4 +1,4 @@
-load("//struct2tensor:struct2tensor.bzl", "s2t_proto_library", "s2t_proto_library_cc", "s2t_proto_library_py")
+load("//struct2tensor:struct2tensor.bzl", "s2t_proto_library", "s2t_proto_library_cc")
 
 package(
     default_visibility = ["@//:__subpackages__"],
@@ -17,12 +17,12 @@ s2t_proto_library_cc(
     deps = [":query_metadata_proto"],
 )
 
-s2t_proto_library_py(
+load("@com_google_protobuf//bazel:py_proto_library.bzl", "py_proto_library")
+
+py_proto_library(
     name = "query_metadata_py_pb2",
-    srcs = ["query_metadata.proto"],
-    api_version = 2,
-    oss_deps = [
-        "@com_github_tensorflow_metadata//tensorflow_metadata/proto/v0:py_metadata_v0_proto_py",
+    deps = [
+        ":query_metadata_proto",
+        "@com_github_tensorflow_metadata//tensorflow_metadata/proto/v0:metadata_v0_proto_py_pb2",
     ],
-    proto_library = "query_metadata_proto",
 )

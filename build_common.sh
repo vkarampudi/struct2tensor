@@ -43,6 +43,8 @@ function install_tensorflow() {
     else
       TF_PIP_PACKAGE="tensorflow>=2,<${TF_MAX_VERSION}"
     fi
+  elif [[ "$1" == CUSTOM_TF ]]; then
+    TF_PIP_PACKAGE="tensorflow==${CUSTOM_TF_VERSION}"
   else
     echo "Invalid tensorflow version string must be one of NIGHTLY_TF, NIGHTLY_TF_2, RELEASED_TF, PRERELEASED_TF, RELEASED_TF_2, PRERELEASED_TF_2."
     exit 1

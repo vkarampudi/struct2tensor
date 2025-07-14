@@ -21,6 +21,62 @@ load("//tf:tf_configure.bzl", "tf_configure")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+http_archive(
+    name = "google_bazel_common",
+    sha256 = "82a49fb27c01ad184db948747733159022f9464fc2e62da996fa700594d9ea42",
+    strip_prefix = "bazel-common-2a6b6406e12208e02b2060df0631fb30919080f3",
+    urls = ["https://github.com/google/bazel-common/archive/2a6b6406e12208e02b2060df0631fb30919080f3.zip"],
+)
+
+
+http_archive(
+    name = "rules_proto",
+    sha256 = "6fb6767d1bef535310547e03247f7518b03487740c11b6c6adb7952033fe1295",
+    strip_prefix = "rules_proto-6.0.2",
+    url = "https://github.com/bazelbuild/rules_proto/releases/download/6.0.2/rules_proto-6.0.2.tar.gz",
+)
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
+
+rules_proto_dependencies()
+
+load("@rules_proto//proto:setup.bzl", "rules_proto_setup")
+
+rules_proto_setup()
+
+load("@rules_proto//proto:toolchains.bzl", "rules_proto_toolchains")
+
+rules_proto_toolchains()
+
+# Install version 0.9.0 of rules_foreign_cc, as default version causes an
+# invalid escape sequence error to be raised, which can't be avoided with
+# the --incompatible_restrict_string_escapes=false flag (flag was removed in
+# Bazel 5.0).
+RULES_FOREIGN_CC_VERSION = "0.9.0"
+
+http_archive(
+    name = "rules_foreign_cc",
+    patch_tool = "patch",
+    sha256 = "2a4d07cd64b0719b39a7c12218a3e507672b82a97b98c6a89d38565894cf7c51",
+    strip_prefix = "rules_foreign_cc-%s" % RULES_FOREIGN_CC_VERSION,
+    url = "https://github.com/bazelbuild/rules_foreign_cc/archive/refs/tags/%s.tar.gz" % RULES_FOREIGN_CC_VERSION,
+)
+
+load("@rules_foreign_cc//foreign_cc:repositories.bzl", "rules_foreign_cc_dependencies")
+
+rules_foreign_cc_dependencies()
+
+http_archive(
+    name = "bazel_skylib",
+    sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
+        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
+    ],
+)
+
+
+
 
 tf_configure(name = "local_config_tf")
 
@@ -41,8 +97,8 @@ tf_configure(name = "local_config_tf")
 # 3. Request the new archive to be mirrored on mirror.bazel.build for more
 #    reliable downloads.
 
-_TENSORFLOW_GIT_COMMIT = "5bc9d26649cca274750ad3625bd93422617eed4b"  # tf 2.16.1
-_TENSORFLOW_ARCHIVE_SHA256 = "fe592915c85d1a89c20f3dd89db0772ee22a0fbda78e39aa46a778d638a96abc"
+_TENSORFLOW_GIT_COMMIT = "3c92ac03cab816044f7b18a86eb86aa01a294d95"  # tf 2.17.1
+_TENSORFLOW_ARCHIVE_SHA256 = "317dd95c4830a408b14f3e802698eb68d70d81c7c7cfcd3d28b0ba023fe84a68"
 
 http_archive(
     name = "org_tensorflow",
@@ -63,14 +119,54 @@ load("//struct2tensor:workspace.bzl", "struct2tensor_workspace")
 struct2tensor_workspace()
 
 # Initialize TensorFlow's external dependencies.
-load("@org_tensorflow//tensorflow:workspace3.bzl", "tf_workspace3")
-tf_workspace3()
-load("@org_tensorflow//tensorflow:workspace2.bzl", "tf_workspace2")
-tf_workspace2()
-load("@org_tensorflow//tensorflow:workspace1.bzl", "tf_workspace1")
-tf_workspace1()
-load("@org_tensorflow//tensorflow:workspace0.bzl", "tf_workspace0")
-tf_workspace0()
+_PROTOBUF_COMMIT = "4.25.6"  # 4.25.6
+http_archive(
+    name = "com_google_protobuf",
+    sha256 = "ff6e9c3db65f985461d200c96c771328b6186ee0b10bc7cb2bbc87cf02ebd864",
+    strip_prefix = "protobuf-%s" % _PROTOBUF_COMMIT,
+    urls = [
+        "https://github.com/protocolbuffers/protobuf/archive/v4.25.6.zip",
+    ],
+)
+
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
+protobuf_deps()
+
+COM_GOOGLE_ABSL_COMMIT = "4447c7562e3bc702ade25105912dce503f0c4010"  # lts_2023_08_0
+http_archive(
+    name = "com_google_absl",
+    sha256 = "df8b3e0da03567badd9440377810c39a38ab3346fa89df077bb52e68e4d61e74",
+    strip_prefix = "abseil-cpp-%s" % COM_GOOGLE_ABSL_COMMIT,
+    url = "https://github.com/abseil/abseil-cpp/archive/%s.tar.gz" % COM_GOOGLE_ABSL_COMMIT,
+)
+
+PYBIND11_COMMIT = "8a099e44b3d5f85b20f05828d919d2332a8de841"  # 2.11.1
+http_archive(
+    name = "pybind11",
+    build_file = "//third_party:pybind11.BUILD",
+    sha256 = "8f4b7f28d214e36301435c055076c36186388dc9617117802cba8a059347cb00",
+    strip_prefix = "pybind11-%s" % PYBIND11_COMMIT,
+    urls = ["https://github.com/pybind/pybind11/archive/%s.zip" % PYBIND11_COMMIT],
+)
+
+http_archive(
+    name = "com_google_googleapis",
+    patch_args = ["-p1"],
+    sha256 = "28e7fe3a640dd1f47622a4c263c40d5509c008cc20f97bd366076d5546cccb64",
+    strip_prefix = "googleapis-4ce00b00904a7ce1df8c157e54fcbf96fda0dc49",
+    url = "https://github.com/googleapis/googleapis/archive/4ce00b00904a7ce1df8c157e54fcbf96fda0dc49.tar.gz",
+)
+
+load("@com_google_googleapis//:repository_rules.bzl", "switched_rules_by_language")
+
+switched_rules_by_language(
+    name = "com_google_googleapis_imports",
+    cc = True,
+    go = True,
+)
+
+
 
 # boost is required for @thrift
 git_repository(

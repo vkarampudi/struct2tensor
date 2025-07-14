@@ -14,7 +14,9 @@
 
 """Bazel macros used in OSS."""
 
-load("@com_google_protobuf//:protobuf.bzl", "cc_proto_library", "py_proto_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@rules_cc//cc:defs.bzl", "cc_proto_library")
+load("@com_google_protobuf//:protobuf.bzl", "py_proto_library")
 
 def s2t_pytype_library(
         name,
@@ -55,15 +57,10 @@ def s2t_proto_library(
         use_grpc_plugin = True
 
     # TODO(martinz): replace with proto_library, when that works.
-    cc_proto_library(
+    proto_library(
         name = name,
         srcs = srcs,
         deps = deps,
-        cc_libs = ["@com_google_protobuf//:protobuf"],
-        protoc = "@com_google_protobuf//:protoc",
-        default_runtime = "@com_google_protobuf//:protobuf",
-        testonly = testonly,
-        visibility = visibility,
     )
 
 DYNAMIC_COPTS = [
@@ -156,26 +153,10 @@ def s2t_proto_library_cc(
         use_grpc_plugin = True
     cc_proto_library(
         name = name,
-        srcs = srcs,
         deps = deps,
-        cc_libs = ["@com_google_protobuf//:protobuf"],
-        protoc = "@com_google_protobuf//:protoc",
-        default_runtime = "@com_google_protobuf//:protobuf",
         use_grpc_plugin = use_grpc_plugin,
         testonly = testonly,
         visibility = visibility,
     )
 
-def s2t_proto_library_py(name, proto_library, srcs = [], deps = [], oss_deps = [], visibility = None, testonly = 0, api_version = None):
-    """Opensource py_proto_library."""
-    _ignore = [proto_library, api_version]
-    py_proto_library(
-        name = name,
-        srcs = srcs,
-        srcs_version = "PY3ONLY",
-        deps = ["@com_google_protobuf//:well_known_types_py_pb2"] + oss_deps,
-        default_runtime = "@com_google_protobuf//:protobuf_python",
-        protoc = "@com_google_protobuf//:protoc",
-        visibility = visibility,
-        testonly = testonly,
-    )
+

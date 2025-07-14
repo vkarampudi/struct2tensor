@@ -1,4 +1,5 @@
-load("//struct2tensor:struct2tensor.bzl", "s2t_proto_library", "s2t_proto_library_cc", "s2t_proto_library_py", "s2t_pytype_library")
+load("//struct2tensor:struct2tensor.bzl", "s2t_proto_library", "s2t_proto_library_cc", "s2t_pytype_library")
+load("@com_google_protobuf//bazel:py_proto_library.bzl", "py_proto_library")
 
 package(
     default_visibility = ["@//:__subpackages__"],
@@ -24,17 +25,15 @@ s2t_proto_library_cc(
     ],
 )
 
-s2t_proto_library_py(
+py_proto_library(
     name = "test_py_pb2",
-    srcs = ["test.proto"],
-    api_version = 2,
-    proto_library = "test_proto",
+    deps = [":test_proto"],
 )
 
 s2t_proto_library(
     name = "test_any_proto",
     srcs = ["test_any.proto"],
-    deps = ["@com_google_protobuf//:cc_wkt_protos"],
+    deps = ["@com_google_protobuf//:any_proto"],
 )
 
 s2t_proto_library_cc(
@@ -42,11 +41,9 @@ s2t_proto_library_cc(
     deps = [":test_any_proto"],
 )
 
-s2t_proto_library_py(
+py_proto_library(
     name = "test_any_py_pb2",
-    srcs = ["test_any.proto"],
-    api_version = 2,
-    proto_library = "test_any_proto",
+    deps = [":test_any_proto"],
 )
 
 s2t_proto_library(
@@ -59,10 +56,9 @@ s2t_proto_library_cc(
     deps = [":test_map_proto"],
 )
 
-s2t_proto_library_py(
+py_proto_library(
     name = "test_map_py_pb2",
-    srcs = ["test_map.proto"],
-    proto_library = "test_map_proto",
+    deps = [":test_map_proto"],
 )
 
 s2t_proto_library(
@@ -70,11 +66,9 @@ s2t_proto_library(
     srcs = ["test_proto3.proto"],
 )
 
-s2t_proto_library_py(
+py_proto_library(
     name = "test_proto3_py_pb2",
-    srcs = ["test_proto3.proto"],
-    api_version = 2,
-    proto_library = "test_proto3_proto",
+    deps = [":test_proto3_proto"],
 )
 
 s2t_proto_library(
@@ -83,11 +77,12 @@ s2t_proto_library(
     deps = [":test_proto"],
 )
 
-s2t_proto_library_py(
+py_proto_library(
     name = "test_extension_py_pb2",
-    srcs = ["test_extension.proto"],
-    oss_deps = [":test_py_pb2"],
-    proto_library = "test_extension_proto",
+    deps = [
+        ":test_extension_proto",
+        ":test_proto",
+    ],
 )
 
 s2t_proto_library(
@@ -96,11 +91,12 @@ s2t_proto_library(
     deps = [":test_proto"],
 )
 
-s2t_proto_library_py(
+py_proto_library(
     name = "dependent_test_py_pb2",
-    srcs = ["dependent_test.proto"],
-    oss_deps = [":test_py_pb2"],
-    proto_library = "dependent_test_proto",
+    deps = [
+        ":dependent_test_proto",
+        ":test_proto",
+    ],
 )
 
 s2t_pytype_library(
