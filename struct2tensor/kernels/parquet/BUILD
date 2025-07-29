@@ -101,7 +101,7 @@ cc_test(
     srcs = ["parent_indices_builder_test.cc"],
     deps = [
         ":parent_indices_builder_lib",
-        "//testing/base/public:gunit_main",
+        "@com_google_googletest//:gtest_main",
         "@org_tensorflow//tensorflow/core:lib",
         "@org_tensorflow//tensorflow/core:test",
     ],
@@ -115,7 +115,7 @@ cc_test(
     ],
     deps = [
         ":parquet_reader_lib",
-        "//testing/base/public:gunit_main",
+        "@com_google_googletest//:gtest_main",
         "@org_tensorflow//tensorflow/core:framework",
     ],
 )
@@ -128,6 +128,6 @@ cc_test(
     ],
     deps = [
         ":parquet_reader_util_lib",
-        "//testing/base/public:gunit_main",
+        "@com_google_googletest//:gtest_main",
     ],
 )

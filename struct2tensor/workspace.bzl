@@ -72,3 +72,29 @@ def struct2tensor_workspace():
             "https://github.com/tensorflow/metadata/archive/%s.tar.gz" % _TFMD_COMMIT_HASH,
         ],
     )
+
+    http_archive(
+        name = "py_cpuinfo",
+        build_file = "//third_party:py_cpuinfo.BUILD",
+        sha256 = "3cdbbf3fac90dc6f118bfd64384f309edeadd902d7c8fb17f02ffa1fc3f49690",
+        strip_prefix = "py-cpuinfo-9.0.0",
+        urls = ["https://pypi.io/packages/source/p/py-cpuinfo/py-cpuinfo-9.0.0.tar.gz"],
+    )
+
+    http_archive(
+        name = "psutil",
+        build_file = "//third_party:psutil.BUILD",
+        sha256 = "7be9c3eba38beccb6495ea33afd982a44074b78f28c434a1f51cc07fd315c456",
+        strip_prefix = "psutil-7.0.0",
+        urls = ["https://pypi.io/packages/source/p/psutil/psutil-7.0.0.tar.gz"],
+    )
+
+    
+
+    http_archive(
+        name = "pyyaml",
+        build_file = "//third_party:pyyaml.BUILD",
+        sha256 = "68fb519c14306fec9720a2a5b45bc9f0c8d1b9c72adf45c37baedfcd949c35a2",
+        strip_prefix = "PyYAML-6.0",
+        urls = ["https://files.pythonhosted.org/packages/source/P/PyYAML/PyYAML-6.0.tar.gz"],
+    )
