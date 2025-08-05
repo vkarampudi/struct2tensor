@@ -43,6 +43,21 @@ load("@rules_proto//proto:toolchains.bzl", "rules_proto_toolchains")
 
 rules_proto_toolchains()
 
+_PROTOBUF_COMMIT = "4.25.6"  # 4.25.6
+
+http_archive(
+    name = "com_google_protobuf",
+    sha256 = "ff6e9c3db65f985461d200c96c771328b6186ee0b10bc7cb2bbc87cf02ebd864",
+    strip_prefix = "protobuf-%s" % _PROTOBUF_COMMIT,
+    urls = [
+        "https://github.com/protocolbuffers/protobuf/archive/v4.25.6.zip",
+    ],
+)
+
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
+protobuf_deps()
+
 
 #####################################################################################
 
@@ -61,11 +76,11 @@ rules_proto_toolchains()
 # 3. Request the new archive to be mirrored on mirror.bazel.build for more
 #    reliable downloads.
 
-_TENSORFLOW_GIT_COMMIT = "5bc9d26649cca274750ad3625bd93422617eed4b"  # tf 2.16.1
-_TENSORFLOW_ARCHIVE_SHA256 = "fe592915c85d1a89c20f3dd89db0772ee22a0fbda78e39aa46a778d638a96abc"
+_TENSORFLOW_GIT_COMMIT = "3c92ac03cab816044f7b18a86eb86aa01a294d95"  # tf 2.17.1
+_TENSORFLOW_ARCHIVE_SHA256 = "317dd95c4830a408b14f3e802698eb68d70d81c7c7cfcd3d28b0ba023fe84a68"
 
 http_archive(
-    name = "org_tensorflow",
+    name = "org_tensorflow_no_deps",
     sha256 = _TENSORFLOW_ARCHIVE_SHA256,
     urls = [
         "https://github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
@@ -83,14 +98,14 @@ load("//struct2tensor:workspace.bzl", "struct2tensor_workspace")
 struct2tensor_workspace()
 
 # Initialize TensorFlow's external dependencies.
-load("@org_tensorflow//tensorflow:workspace3.bzl", "tf_workspace3")
-tf_workspace3()
-load("@org_tensorflow//tensorflow:workspace2.bzl", "tf_workspace2")
-tf_workspace2()
-load("@org_tensorflow//tensorflow:workspace1.bzl", "tf_workspace1")
-tf_workspace1()
-load("@org_tensorflow//tensorflow:workspace0.bzl", "tf_workspace0")
-tf_workspace0()
+# load("@org_tensorflow//tensorflow:workspace3.bzl", "tf_workspace3")
+# tf_workspace3()
+# load("@org_tensorflow//tensorflow:workspace2.bzl", "tf_workspace2")
+# tf_workspace2()
+# load("@org_tensorflow//tensorflow:workspace1.bzl", "tf_workspace1")
+# tf_workspace1()
+# load("@org_tensorflow//tensorflow:workspace0.bzl", "tf_workspace0")
+# tf_workspace0()
 
 # boost is required for @thrift
 git_repository(
@@ -106,6 +121,21 @@ boost_deps()
 load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
 rules_pkg_dependencies()
 
+http_archive(
+    name = "absl_py",
+    sha256 = "8a3d0830e4eb4f66c4fa907c06edf6ce1c719ced811a12e26d9d3162f8471758",
+    strip_prefix = "abseil-py-2.1.0",
+    urls = ["https://github.com/abseil/abseil-py/archive/v2.1.0.tar.gz"],
+    build_file = "//third_party:absl_py.BUILD",
+)
+
 # Specify the minimum required bazel version.
 load("@bazel_skylib//lib:versions.bzl", "versions")
 versions.check("6.5.0")
+
+http_archive(
+    name = "com_google_googletest",
+    sha256 = "53de8c75150430c217550ec6bb413029300120407f2de02ea8e20e89675f5e94",
+    strip_prefix = "googletest-912db742531bf82efb01194bc08140416e3b3467",
+    urls = ["https://github.com/google/googletest/archive/912db742531bf82efb01194bc08140416e3b3467.tar.gz"],
+)

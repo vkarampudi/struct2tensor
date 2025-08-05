@@ -83,7 +83,7 @@ s2t_pytype_library(
         "path.py",
     ],
     deps = [
-        "@com_github_tensorflow_metadata//tensorflow_metadata/proto/v0:py_metadata_v0_proto_py",
+        "//struct2tensor/proto:metadata_v0_py_lib",
         "@com_google_protobuf//:protobuf_python",
     ],
 )

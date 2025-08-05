@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Bazel macros used in OSS."""
 
-load("@com_google_protobuf//:protobuf.bzl", "cc_proto_library", "py_proto_library")
+load("@com_google_protobuf//:protobuf.bzl", "py_proto_library")
+load("@rules_cc//cc:defs.bzl", "cc_proto_library")
 
 def s2t_pytype_library(
         name,
@@ -32,21 +32,13 @@ def s2t_proto_library(
         visibility = None,
         testonly = 0,
         cc_grpc_version = None):
-    """Opensource proto_library.
-
-    Args:
-      name: the name of the build target.
-      srcs: .proto file sources.
-      has_services: no effect
-      deps: dependencies
-      visibility: visibility constraints
-      testonly: if true, only use in tests.
-      cc_grpc_version: If set, use grpc plugin.
-    """
+    """Opensource proto_library."""
     _ignore = [has_services]
-    native.filegroup(
-        name = name + "_proto_srcs",
+    native.proto_library(
+        name = name + "_proto",
         srcs = srcs,
+        deps = deps,
+        visibility = visibility,
         testonly = testonly,
     )
 
@@ -54,16 +46,60 @@ def s2t_proto_library(
     if cc_grpc_version:
         use_grpc_plugin = True
 
-    # TODO(martinz): replace with proto_library, when that works.
     cc_proto_library(
         name = name,
+        deps = [":" + name + "_proto"],
+        visibility = visibility,
+        testonly = testonly,
+    )
+
+def s2t_proto_library_cc(
+        name,
+        srcs = [],
+        has_services = False,
+        deps = [],
+        visibility = None,
+        testonly = 0,
+        cc_grpc_version = None):
+    """Opensource cc_proto_library."""
+    _ignore = [has_services]
+    native.proto_library(
+        name = name + "_proto",
         srcs = srcs,
         deps = deps,
-        cc_libs = ["@com_google_protobuf//:protobuf"],
-        protoc = "@com_google_protobuf//:protoc",
-        default_runtime = "@com_google_protobuf//:protobuf",
-        testonly = testonly,
         visibility = visibility,
+        testonly = testonly,
+    )
+
+    use_grpc_plugin = None
+    if cc_grpc_version:
+        use_grpc_plugin = True
+    cc_proto_library(
+        name = name,
+        deps = [":" + name + "_proto"],
+        visibility = visibility,
+        testonly = testonly,
+    )
+
+def s2t_proto_library_py(name, proto_library=None, srcs = [], deps = [], oss_deps = [], visibility = None, testonly = 0, api_version = None):
+    """Opensource py_proto_library that creates a py_library."""
+    _ignore = [api_version]
+    py_proto_library(
+        name = name + "_impl",
+        srcs = srcs,
+        deps = deps + ([proto_library] if proto_library else []),
+        srcs_version = "PY3ONLY",
+        py_libs = ["@com_google_protobuf//:well_known_types_py_pb2"],
+        default_runtime = "@com_google_protobuf//:protobuf_python",
+        protoc = "@com_google_protobuf//:protoc",
+        visibility = ["//visibility:private"],
+        testonly = testonly,
+    )
+    native.py_library(
+        name = name,
+        deps = [":" + name + "_impl"] + oss_deps,
+        visibility = visibility,
+        testonly = testonly,
     )
 
 DYNAMIC_COPTS = [
@@ -101,18 +137,7 @@ def s2t_gen_op_wrapper_py(
         static_library,
         dynamic_library,
         visibility = None):
-    """Applies gen_op_wrapper_py externally.
-
-    Instead of a static library, links to a dynamic library.
-    Instead of generating a file, one is provided.
-
-    Args:
-      name: name of the target
-      out: a file that must be provided. Included as source.
-      static_library: a static library (ignored).
-      dynamic_library: a dynamic library included as data.
-      visibility: The visibility attribute on a rule controls whether the rule can be used by other packages. Rules are always visible to other rules declared in the same package.
-    """
+    """Applies gen_op_wrapper_py externally."""
     native.py_library(
         name = name,
         srcs = ([
@@ -123,59 +148,4 @@ def s2t_gen_op_wrapper_py(
         ],
         srcs_version = "PY3ONLY",
         visibility = visibility,
-    )
-
-def s2t_proto_library_cc(
-        name,
-        srcs = [],
-        has_services = False,
-        deps = [],
-        visibility = None,
-        testonly = 0,
-        cc_grpc_version = None):
-    """Opensource cc_proto_library.
-
-    Args:
-        name: name of library
-        srcs: .proto sources
-        has_services: no effect
-        deps: dependencies
-        visibility: visibility constraints
-        testonly: if true, can only be used in tests.
-        cc_grpc_version: if set, use_grpc_version is True.
-    """
-    _ignore = [has_services]
-    native.filegroup(
-        name = name + "_proto_srcs",
-        srcs = srcs,
-        testonly = testonly,
-    )
-
-    use_grpc_plugin = None
-    if cc_grpc_version:
-        use_grpc_plugin = True
-    cc_proto_library(
-        name = name,
-        srcs = srcs,
-        deps = deps,
-        cc_libs = ["@com_google_protobuf//:protobuf"],
-        protoc = "@com_google_protobuf//:protoc",
-        default_runtime = "@com_google_protobuf//:protobuf",
-        use_grpc_plugin = use_grpc_plugin,
-        testonly = testonly,
-        visibility = visibility,
-    )
-
-def s2t_proto_library_py(name, proto_library, srcs = [], deps = [], oss_deps = [], visibility = None, testonly = 0, api_version = None):
-    """Opensource py_proto_library."""
-    _ignore = [proto_library, api_version]
-    py_proto_library(
-        name = name,
-        srcs = srcs,
-        srcs_version = "PY3ONLY",
-        deps = ["@com_google_protobuf//:well_known_types_py_pb2"] + oss_deps,
-        default_runtime = "@com_google_protobuf//:protobuf_python",
-        protoc = "@com_google_protobuf//:protoc",
-        visibility = visibility,
-        testonly = testonly,
     )

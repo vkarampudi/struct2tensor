@@ -14,39 +14,45 @@
 
 load("@com_google_protobuf//:protobuf.bzl", "py_proto_library")
 load("@rules_cc//cc:defs.bzl", "cc_proto_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@rules_python//python:defs.bzl", "py_library")
 
 licenses(["notice"])
 
 proto_library(
     name = "benchmark_proto",
-    srcs = [
-        "benchmark.proto",
-    ],
-)
-
-py_proto_library(
-    name = "benchmark_proto_py_pb2",
-    deps = [":benchmark_proto"],
+    srcs = ["benchmark.proto"],
 )
 
 cc_proto_library(
-    name = "benchmark_cc_proto",
+    name = "benchmark_proto_cc",
     deps = [":benchmark_proto"],
+)
+
+py_proto_library(
+    name = "benchmark_proto_py_pb2_impl",
+    srcs = ["benchmark.proto"],
+    srcs_version = "PY3",
+)
+
+py_library(
+    name = "benchmark_proto_py_pb2",
+    deps = [":benchmark_proto_py_pb2_impl"],
 )
 
 cc_test(
     name = "serialization_benchmark",
     srcs = ["serialization_benchmark.cc"],
     deps = [
-        ":benchmark_cc_proto",
+        ":benchmark_proto_cc",
         "@com_google_googletest//:gtest_main",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/flags:parse",
         "@com_google_absl//absl/random",
         "@com_google_absl//absl/random:distributions",
         "@com_google_protobuf//:protobuf",
-        "@org_tensorflow//tensorflow/core:feature_util",
-        "@org_tensorflow//tensorflow/core:protos_all_cc",
+        "@org_tensorflow_no_deps//tensorflow/core:feature_util",
+        "@org_tensorflow_no_deps//tensorflow/core:protos_all_cc",
     ],
 )
 

@@ -35,8 +35,8 @@ cc_library(
         "run_length_before_op.cc",
     ],
     deps = [
-        "@org_tensorflow//tensorflow/core:framework",
-        "@org_tensorflow//tensorflow/core:framework_lite",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:framework_lite",
     ],
     alwayslink = 1,
 )
@@ -50,9 +50,9 @@ cc_library(
         ":vector_to_tensor",
         "@com_google_absl//absl/memory",
         "@com_google_protobuf//:protobuf",
-        "@org_tensorflow//tensorflow/core:framework",
-        "@org_tensorflow//tensorflow/core:framework_lite",
-        "@org_tensorflow//tensorflow/core:lib",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:framework_lite",
+        "@org_tensorflow_no_deps//tensorflow/core:lib",
     ],
     alwayslink = 1,
 )
@@ -85,8 +85,8 @@ cc_library(
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/types:span",
         "@com_google_protobuf//:protobuf",
-        "@org_tensorflow//tensorflow/core:framework",
-        "@org_tensorflow//tensorflow/core:lib",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:lib",
     ],
     alwayslink = 1,
 )
@@ -115,8 +115,8 @@ cc_library(
     hdrs = ["vector_to_tensor.h"],
     deps = [
         "@com_google_absl//absl/strings",
-        "@org_tensorflow//tensorflow/core:framework",
-        "@org_tensorflow//tensorflow/core:lib",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:lib",
     ],
     alwayslink = 1,
 )
@@ -125,7 +125,7 @@ cc_library(
     name = "equi_join_indices_kernel",
     srcs = ["equi_join_indices_op.cc"],
     deps = [
-        "@org_tensorflow//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
     ],
     alwayslink = 1,
 )
@@ -139,7 +139,7 @@ cc_library(
     name = "equi_join_any_indices_kernel",
     srcs = ["equi_join_any_indices_op.cc"],
     deps = [
-        "@org_tensorflow//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
     ],
     alwayslink = 1,
 )
@@ -170,7 +170,7 @@ cc_library(
         "@com_google_absl//absl/base:endian",
         "@com_google_absl//absl/strings",
         "@com_google_protobuf//:protobuf",
-        "@org_tensorflow//tensorflow/core:framework_lite",
-        "@org_tensorflow//tensorflow/core:lib",
+        "@org_tensorflow_no_deps//tensorflow/core:framework_lite",
+        "@org_tensorflow_no_deps//tensorflow/core:lib",
     ],
 )

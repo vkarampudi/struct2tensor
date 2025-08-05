@@ -82,7 +82,7 @@ cc_library(
         "run_length_before_op.cc",
     ],
     deps = [
-        "@org_tensorflow//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
     ],
     alwayslink = 1,
 )
@@ -100,7 +100,7 @@ cc_library(
         "decode_proto_sparse_op.cc",
     ],
     deps = [
-        "@org_tensorflow//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
     ],
     alwayslink = 1,
 )
@@ -118,7 +118,7 @@ cc_library(
         "decode_proto_map_op.cc",
     ],
     deps = [
-        "@org_tensorflow//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
     ],
     alwayslink = 1,
 )
@@ -134,7 +134,7 @@ cc_library(
     name = "equi_join_indices",
     srcs = ["equi_join_indices_op.cc"],
     deps = [
-        "@org_tensorflow//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
     ],
     alwayslink = 1,
 )
@@ -148,7 +148,7 @@ cc_library(
     name = "equi_join_any_indices",
     srcs = ["equi_join_any_indices_op.cc"],
     deps = [
-        "@org_tensorflow//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
     ],
     alwayslink = 1,
 )
@@ -197,8 +197,8 @@ cc_library(
     name = "parquet_dataset_op",
     srcs = ["parquet_dataset_op.cc"],
     deps = [
-        "@org_tensorflow//tensorflow/core:dataset_ops_op_lib",
-        "@org_tensorflow//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:dataset_ops_op_lib",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
     ],
     alwayslink = 1,
 )
@@ -252,6 +252,6 @@ cc_test(
         "//struct2tensor/kernels:struct2tensor_kernels",  # build_cleaner: keep
         "//struct2tensor/kernels/parquet:parquet_dataset_kernel",  # build_cleaner: keep
         "@com_google_googletest//:gtest_main",
-        "@org_tensorflow//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
     ],
 )

@@ -48,7 +48,7 @@ cc_library(
         ":parquet_reader_util_lib",
         "@com_google_absl//absl/container:flat_hash_map",
         "//struct2tensor/kernels:vector_to_tensor",
-        "@org_tensorflow//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
     ],
     alwayslink = 1,
 )
@@ -63,8 +63,8 @@ cc_library(
         "@com_google_absl//absl/strings",
         "@arrow//:arrow",
         "//struct2tensor/kernels:vector_to_tensor",
-        "@org_tensorflow//tensorflow/core:framework",
-        "@org_tensorflow//tensorflow/core:lib",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:lib",
     ],
     alwayslink = 1,
 )
@@ -81,7 +81,7 @@ cc_library(
     # -fexceptions.
     deps = [
         "@arrow//:arrow",
-        "@org_tensorflow//tensorflow/core:lib",
+        "@org_tensorflow_no_deps//tensorflow/core:lib",
     ],
 )
 
@@ -91,8 +91,8 @@ cc_library(
     hdrs = ["parent_indices_builder.h"],
     deps = [
         "@com_google_absl//absl/strings",
-        "@org_tensorflow//tensorflow/core:framework",
-        "@org_tensorflow//tensorflow/core:lib",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:lib",
     ],
 )
 
@@ -102,8 +102,8 @@ cc_test(
     deps = [
         ":parent_indices_builder_lib",
         "@com_google_googletest//:gtest_main",
-        "@org_tensorflow//tensorflow/core:lib",
-        "@org_tensorflow//tensorflow/core:test",
+        "@org_tensorflow_no_deps//tensorflow/core:lib",
+        "@org_tensorflow_no_deps//tensorflow/core:test",
     ],
 )
 
@@ -116,7 +116,7 @@ cc_test(
     deps = [
         ":parquet_reader_lib",
         "@com_google_googletest//:gtest_main",
-        "@org_tensorflow//tensorflow/core:framework",
+        "@org_tensorflow_no_deps//tensorflow/core:framework",
     ],
 )
 
