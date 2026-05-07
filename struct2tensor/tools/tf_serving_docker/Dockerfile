@@ -15,8 +15,8 @@
 # Defines an image that contains a tensorflow-serving model server binary
 # that has struct2tensor ops linked in.
 
-FROM ubuntu:20.04 as base_build
-ARG TF_SERVING_VERSION_GIT_BRANCH=2.17.1
+FROM ubuntu:22.04 as base_build
+ARG TF_SERVING_VERSION_GIT_BRANCH=r2.19
 ARG TF_SERVING_VERSION_GIT_COMMIT=head
 ARG S2T_VERSION_GIT_BRANCH=master
 ARG S2T_VERSION_GIT_COMMIT=head
@@ -42,7 +42,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         openjdk-8-jdk\
         openjdk-8-jre-headless \
         pkg-config \
-        python-dev \
+        gnupg \
         software-properties-common \
         swig \
         unzip \
@@ -56,16 +56,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install python 3.9.
+# Install python 3.13.
 RUN add-apt-repository ppa:deadsnakes/ppa && \
     apt-get update && apt-get install -y \
-    python3.9 python3.9-dev python3-pip python3.9-venv && \
+    python3.13 python3.13-dev python3-pip python3.13-venv && \
     rm -rf /var/lib/apt/lists/* && \
-    python3.9 -m pip install pip --upgrade && \
-    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 0
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 0
 
-# Make python3.9 and the default python version
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 0
+# Make python3.13 and the default python version
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.13 0
 
 RUN curl -fSsL -O https://bootstrap.pypa.io/get-pip.py && \
     python3 get-pip.py && \
@@ -74,7 +73,7 @@ RUN curl -fSsL -O https://bootstrap.pypa.io/get-pip.py && \
 RUN pip3 --no-cache-dir install --upgrade numpy
 
 # Set up Bazel
-ENV BAZEL_VERSION 6.5.0
+ENV BAZEL_VERSION 7.7.0
 WORKDIR /bazel
 RUN curl -fSsL -O https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/bazel-$BAZEL_VERSION-installer-linux-x86_64.sh && \
     chmod +x bazel-*.sh && \
@@ -103,35 +102,26 @@ RUN git clone --branch=${TF_SERVING_VERSION_GIT_BRANCH} https://github.com/tenso
     git remote add upstream https://github.com/tensorflow/serving.git && \
     if [ "${TF_SERVING_VERSION_GIT_COMMIT}" != "head" ]; then \
      git checkout ${TF_SERVING_VERSION_GIT_COMMIT}; fi && \
-     echo "tensorflow-serving: $(git rev-parse HEAD)" && \
-    cat <<'PATCH' | patch -p1
-diff --git a/WORKSPACE b/WORKSPACE
-index c2af3b7f..8d243cfc 100644
---- a/WORKSPACE
-+++ b/WORKSPACE
-@@ -51,6 +51,13 @@ http_archive(
-     ],
- )
+     echo "tensorflow-serving: $(git rev-parse HEAD)"
 
-+http_archive(
-+    name = "rules_cc",
-+    sha256 = "b8b918a85f9144c01f6cfe0f45e4f2838c7413961a8ff23bc0c6cdf8bb07a3b6",
-+    strip_prefix = "rules_cc-0.1.5",
-+    url = "https://github.com/bazelbuild/rules_cc/releases/download/0.1.5/rules_cc-0.1.5.tar.gz",
-+)
-+
- http_archive(
-     name = "rules_python",
-     sha256 = "84aec9e21cc56fbc7f1335035a71c850d1b9b5cc6ff497306f84cced9a769841",
-@@ -84,4 +91,3 @@ load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_
+RUN touch BUILD && \
+    echo 'def _local_tsl_impl(repository_ctx):' > local_tsl.bzl && \
+    echo '    repository_ctx.file("WORKSPACE", "")' >> local_tsl.bzl && \
+    echo '    repository_ctx.file("BUILD", "cc_library(name = \"bazel_issue_21519\", visibility = [\"//visibility:public\"])")' >> local_tsl.bzl && \
+    echo '    repository_ctx.symlink("/root/.cache/bazel/_bazel_root/e53bbb0b0da4e26d24b415310219b953/external/org_tensorflow/third_party/xla/third_party/tsl/tsl", "tsl")' >> local_tsl.bzl && \
+    echo '    repository_ctx.symlink("/root/.cache/bazel/_bazel_root/e53bbb0b0da4e26d24b415310219b953/external/org_tensorflow/third_party/xla/third_party/tsl/third_party", "third_party")' >> local_tsl.bzl && \
+    echo 'local_tsl_repo = repository_rule(implementation = _local_tsl_impl)' >> local_tsl.bzl
 
- rules_proto_dependencies()
- rules_proto_toolchains()
--
-PATCH
+RUN echo 'load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")' > overrides.txt && \
+    echo 'http_archive(name = "rules_cc", sha256 = "b8b918a85f9144c01f6cfe0f45e4f2838c7413961a8ff23bc0c6cdf8bb07a3b6", strip_prefix = "rules_cc-0.1.5", urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.1.5/rules_cc-0.1.5.tar.gz"])' >> overrides.txt && \
+    echo 'http_archive(name = "build_bazel_rules_apple", sha256 = "b892911288715b354e05b9a6fe9009635f7155991f24f27e779fe80d435c92bc", url = "https://github.com/bazelbuild/rules_apple/releases/download/3.13.0/rules_apple.3.13.0.tar.gz")' >> overrides.txt && \
+    echo 'http_archive(name = "build_bazel_rules_swift", sha256 = "bb01097c7c7a1407f8ad49a1a0b1960655cf823c26ad2782d0b7d15b323838e2", url = "https://github.com/bazelbuild/rules_swift/releases/download/1.18.0/rules_swift.1.18.0.tar.gz")' >> overrides.txt && \
+    echo 'http_archive(name = "build_bazel_apple_support", sha256 = "c4bb2b7367c484382300aee75be598b92f847896fb31bbd22f3a2346adf66a80", url = "https://github.com/bazelbuild/apple_support/releases/download/1.15.1/apple_support.1.15.1.tar.gz")' >> overrides.txt && \
+    echo 'load("//:local_tsl.bzl", "local_tsl_repo")\nlocal_tsl_repo(name = "local_tsl")' >> overrides.txt && \
+    sed -i '1r overrides.txt' WORKSPACE && \
+    rm overrides.txt
 
-RUN echo "local_repository(name=\"com_google_struct2tensor\", path=\"/struct2tensor\")" \
-         >> WORKSPACE && \
+RUN echo "local_repository(name=\"com_google_struct2tensor\", path=\"/struct2tensor\")" >> WORKSPACE && \
     buildozer "add deps @com_google_struct2tensor//struct2tensor:struct2tensor_kernels_and_ops" \
         //tensorflow_serving/model_servers:tensorflow_model_server
 
@@ -139,7 +129,7 @@ RUN echo "local_repository(name=\"com_google_struct2tensor\", path=\"/struct2ten
 FROM base_build as binary_build
 ARG TF_SERVING_BUILD_OPTIONS="--config=release"
 RUN echo "Building with build options: ${TF_SERVING_BUILD_OPTIONS}"
-ARG TF_SERVING_BAZEL_OPTIONS=""
+ARG TF_SERVING_BAZEL_OPTIONS="--noenable_bzlmod"
 RUN echo "Building with Bazel options: ${TF_SERVING_BAZEL_OPTIONS}"
 RUN bazel build --color=yes --curses=yes \
     ${TF_SERVING_BAZEL_OPTIONS} \
@@ -152,7 +142,7 @@ RUN bazel build --color=yes --curses=yes \
 
 
 # The following defines the serving container.
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates \
