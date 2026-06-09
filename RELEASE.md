@@ -4,6 +4,16 @@
 
 ## Major Features and Improvements
 
+## Bug Fixes and Other Changes
+
+## Breaking Changes
+
+## Deprecations
+
+## Version 0.52.0
+
+## Major Features and Improvements
+
 *   N/A
 
 ## Bug Fixes and Other Changes
