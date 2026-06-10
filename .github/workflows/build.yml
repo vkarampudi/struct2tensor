@@ -77,7 +77,7 @@ jobs:
       shell: bash -l {0}
       run: |
         python -m pip install auditwheel
-        auditwheel repair dist/*.whl -w repaired_wheels/
+        auditwheel repair --exclude 'libtensorflow_framework.so.*' dist/*.whl -w repaired_wheels/
         rm -f dist/*.whl
         mv repaired_wheels/*.whl dist/
 
