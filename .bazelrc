@@ -50,7 +50,6 @@ build:sframe_fix --copt=-Wa,--gsframe=no
 build:sframe_fix --cxxopt=-Wa,--gsframe=no
 build:sframe_fix --host_copt=-Wa,--gsframe=no
 build:sframe_fix --host_cxxopt=-Wa,--gsframe=no
-build:linux --config=sframe_fix
 
 build:macos --macos_minimum_os=10.12
 
